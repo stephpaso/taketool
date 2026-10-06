@@ -12,7 +12,7 @@ Desktop overlay of quick utilities for Windows (macOS host planned later). Modul
 ```
 src/
   TakeTool.Core/           # contracts, config, platform flags (net8.0)
-  TakeTool.Utilities/      # ImgBB and future utilities (net8.0)
+  TakeTool.Utilities/      # built-in utilities (net8.0) — see README there
   TakeTool.UI.Windows/     # WPF host: overlay, tray, settings
 tests/
   TakeTool.Core.Tests/
@@ -28,19 +28,15 @@ dotnet run --project src/TakeTool.UI.Windows
 
 Config and secrets are stored under `%APPDATA%/TakeTool/`. Utility config values (including API keys) are encrypted at rest with Windows DPAPI (`CurrentUser` scope). Never commit API keys.
 
-## ImgBB utility
+## Utilities
 
-1. Open **Settings** from the tray menu.
-2. Enable **ImgBB Uploader** and paste your API key from [api.imgbb.com](https://api.imgbb.com/).
-3. Drag an image (`.png`, `.jpg`, `.jpeg`, `.gif`, `.webp`) onto the floating hub or the ImgBB slot.
-4. On success the public HTTPS URL is copied to the clipboard.
+How to implement a new utility, and the list of preinstalled ones:
 
-## Cross-platform utilities
+→ **[src/TakeTool.Utilities/README.md](src/TakeTool.Utilities/README.md)**
 
-Each utility declares `SupportedPlatforms` (`Windows`, `MacOS`, `Linux`, or `Any`). The registry only surfaces utilities compatible with the current OS.
+## Cross-platform notes
 
-- Pure logic (HTTP, files) should use `UtilityPlatform.Any` and depend on Core abstractions (`IClipboardService`, etc.).
-- OS-specific utilities set a narrower flag, or inject platform services from the UI host.
+Each utility declares `SupportedPlatforms` (`Windows`, `MacOS`, `Linux`, or `Any`). The registry only surfaces utilities compatible with the current OS. Details and examples are in the utilities README linked above.
 
 A future `TakeTool.UI.Mac` project can reuse `TakeTool.Core` and `TakeTool.Utilities` without rewriting plugins.
 
@@ -50,7 +46,7 @@ A future `TakeTool.UI.Mac` project can reuse `TakeTool.Core` and `TakeTool.Utili
 dotnet test
 ```
 
-UI smoke testing is manual on Windows (overlay, tray, drag-and-drop). Automated tests cover Core + Utilities (including ImgBB with a mocked HTTP handler).
+UI smoke testing is manual on Windows (overlay, tray, drag-and-drop). Automated tests cover Core + Utilities (HTTP mocked where needed).
 
 ## License
 
