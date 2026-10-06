@@ -1,5 +1,6 @@
 using System.Net.Http.Headers;
 using System.Text.Json;
+using TakeTool.Core.Security;
 
 namespace TakeTool.Utilities.ImgBB;
 
@@ -24,23 +25,17 @@ public sealed class ImgBBClient
             return ImgBBUploadResult.Fail("ImgBB API key is missing. Configure it in Settings.");
         }
 
-        if (string.IsNullOrWhiteSpace(filePath) || !File.Exists(filePath))
+        if (!SafeFileAccess.IsSafeRegularFile(filePath, out var fullPath) || fullPath is null)
         {
-            return ImgBBUploadResult.Fail("Image file was not found.");
+            return ImgBBUploadResult.Fail("Image file was not found or is not a regular file.");
         }
 
-        // Defense in depth: only allow regular files under a resolved full path.
-        var fullPath = Path.GetFullPath(filePath);
-        if (!File.Exists(fullPath))
+        if (!SafeFileAccess.HasImageMagicBytes(fullPath))
         {
-            return ImgBBUploadResult.Fail("Image file was not found.");
+            return ImgBBUploadResult.Fail("File content is not a recognized image format.");
         }
 
         var fileInfo = new FileInfo(fullPath);
-        if ((fileInfo.Attributes & FileAttributes.Directory) != 0)
-        {
-            return ImgBBUploadResult.Fail("Path is a directory, not an image file.");
-        }
 
         // Reasonable size cap (32 MB) to avoid accidental huge uploads.
         const long maxBytes = 32L * 1024 * 1024;

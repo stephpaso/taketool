@@ -1,5 +1,6 @@
 using TakeTool.Core.Abstractions;
 using TakeTool.Core.Configuration;
+using TakeTool.Core.Security;
 
 namespace TakeTool.Core.Utilities;
 
@@ -52,18 +53,12 @@ public abstract class BaseUtility : IUtility
 
     protected bool IsAcceptedFile(string filePath)
     {
-        if (string.IsNullOrWhiteSpace(filePath))
+        if (!SafeFileAccess.IsSafeRegularFile(filePath, out var fullPath) || fullPath is null)
         {
             return false;
         }
 
-        // Reject path traversal / invalid paths early.
-        if (filePath.Contains("..", StringComparison.Ordinal))
-        {
-            return false;
-        }
-
-        var extension = Path.GetExtension(filePath);
+        var extension = Path.GetExtension(fullPath);
         if (string.IsNullOrEmpty(extension))
         {
             return Metadata.AcceptedExtensions.Count == 0 && Metadata.AcceptedMimeTypes.Count == 0;
@@ -71,14 +66,29 @@ public abstract class BaseUtility : IUtility
 
         if (Metadata.AcceptedExtensions.Count > 0)
         {
-            return Metadata.AcceptedExtensions.Any(ext =>
+            var extensionOk = Metadata.AcceptedExtensions.Any(ext =>
                 string.Equals(ext, extension, StringComparison.OrdinalIgnoreCase));
+            if (!extensionOk)
+            {
+                return false;
+            }
         }
-
-        if (Metadata.AcceptedMimeTypes.Count > 0)
+        else if (Metadata.AcceptedMimeTypes.Count > 0)
         {
             var mime = GuessMimeType(extension);
-            return Metadata.AcceptedMimeTypes.Any(pattern => MatchesMime(pattern, mime));
+            if (!Metadata.AcceptedMimeTypes.Any(pattern => MatchesMime(pattern, mime)))
+            {
+                return false;
+            }
+        }
+
+        // For image/* utilities, require magic-byte confirmation so renamed
+        // non-images cannot pass extension-only checks.
+        if (Metadata.AcceptedMimeTypes.Any(m =>
+                m.StartsWith("image/", StringComparison.OrdinalIgnoreCase) ||
+                string.Equals(m, "image/*", StringComparison.OrdinalIgnoreCase)))
+        {
+            return SafeFileAccess.HasImageMagicBytes(fullPath);
         }
 
         return true;

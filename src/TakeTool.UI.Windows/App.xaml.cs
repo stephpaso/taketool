@@ -3,6 +3,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using TakeTool.Core.Abstractions;
 using TakeTool.Core.DependencyInjection;
+using TakeTool.Core.Security;
 using TakeTool.UI.Windows.Services;
 using TakeTool.UI.Windows.ViewModels;
 using TakeTool.UI.Windows.Views;
@@ -22,6 +23,8 @@ public partial class App : Application
         _host = Host.CreateDefaultBuilder()
             .ConfigureServices(services =>
             {
+                // Register DPAPI before Core so TryAddSingleton keeps this protector.
+                services.AddSingleton<ISecretProtector, DpapiSecretProtector>();
                 services.AddTakeToolCore();
                 services.AddTakeToolUtilities();
                 services.AddSingleton<IClipboardService, WindowsClipboardService>();

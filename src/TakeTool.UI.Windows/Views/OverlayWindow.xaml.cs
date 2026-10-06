@@ -3,6 +3,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using TakeTool.Core.Configuration;
+using TakeTool.Core.Security;
 using TakeTool.UI.Windows.ViewModels;
 
 namespace TakeTool.UI.Windows.Views;
@@ -236,13 +237,15 @@ public partial class OverlayWindow : Window
             return Array.Empty<string>();
         }
 
-        // Security: only existing files, no directories, reject path traversal segments.
-        return paths
-            .Where(p => !string.IsNullOrWhiteSpace(p))
-            .Where(p => !p.Contains("..", StringComparison.Ordinal))
-            .Where(File.Exists)
-            .Select(Path.GetFullPath)
-            .Where(File.Exists)
-            .ToList();
+        var safe = new List<string>();
+        foreach (var path in paths)
+        {
+            if (SafeFileAccess.IsSafeRegularFile(path, out var fullPath) && fullPath is not null)
+            {
+                safe.Add(fullPath);
+            }
+        }
+
+        return safe;
     }
 }

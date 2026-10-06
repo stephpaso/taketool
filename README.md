@@ -26,7 +26,7 @@ dotnet restore
 dotnet run --project src/TakeTool.UI.Windows
 ```
 
-Config and secrets are stored under `%APPDATA%/TakeTool/` (never commit API keys).
+Config and secrets are stored under `%APPDATA%/TakeTool/`. Utility config values (including API keys) are encrypted at rest with Windows DPAPI (`CurrentUser` scope). Never commit API keys.
 
 ## ImgBB utility
 

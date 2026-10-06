@@ -1,5 +1,6 @@
 using System.Text.Json;
 using System.Text.RegularExpressions;
+using TakeTool.Core.Security;
 
 namespace TakeTool.Core.Configuration;
 
@@ -15,11 +16,13 @@ public sealed class JsonConfigurationStore : IConfigurationStore
     private static readonly Regex SafeUtilityId = new("^[a-zA-Z0-9._-]+$", RegexOptions.Compiled);
 
     private readonly IAppDataPathProvider _pathProvider;
+    private readonly ISecretProtector _secretProtector;
     private readonly SemaphoreSlim _gate = new(1, 1);
 
-    public JsonConfigurationStore(IAppDataPathProvider pathProvider)
+    public JsonConfigurationStore(IAppDataPathProvider pathProvider, ISecretProtector secretProtector)
     {
         _pathProvider = pathProvider;
+        _secretProtector = secretProtector;
     }
 
     public async Task<AppSettings> LoadSettingsAsync(CancellationToken cancellationToken = default)
@@ -92,7 +95,16 @@ public sealed class JsonConfigurationStore : IConfigurationStore
                     cancellationToken)
                 .ConfigureAwait(false);
 
-            return values ?? new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+            if (values is null)
+            {
+                return new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+            }
+
+            // Decrypt protected secrets for callers; plaintext legacy values pass through.
+            return values.ToDictionary(
+                static pair => pair.Key,
+                pair => _secretProtector.Unprotect(pair.Value),
+                StringComparer.OrdinalIgnoreCase);
         }
         finally
         {
@@ -114,7 +126,13 @@ public sealed class JsonConfigurationStore : IConfigurationStore
             EnsureDirectories();
             var path = GetUtilityConfigPath(utilityId);
             var tempPath = path + ".tmp";
-            var payload = new Dictionary<string, string>(values, StringComparer.OrdinalIgnoreCase);
+
+            // Encrypt all utility config values at rest (idempotent protector).
+            var payload = values.ToDictionary(
+                static pair => pair.Key,
+                pair => _secretProtector.Protect(pair.Value ?? string.Empty),
+                StringComparer.OrdinalIgnoreCase);
+
             await using (var stream = File.Create(tempPath))
             {
                 await JsonSerializer.SerializeAsync(stream, payload, JsonOptions, cancellationToken)

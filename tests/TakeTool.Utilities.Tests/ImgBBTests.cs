@@ -9,13 +9,16 @@ namespace TakeTool.Utilities.Tests;
 
 public sealed class ImgBBClientTests
 {
+    private static readonly byte[] PngHeader =
+        [0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A, 0x00, 0x00, 0x00, 0x0D];
+
     [Fact]
     public async Task UploadAsync_ReturnsUrl_OnSuccess()
     {
         var handler = new StubHandler(_ =>
             JsonResponse(HttpStatusCode.OK, """{"success":true,"data":{"url":"https://i.ibb.co/abc/test.png"}}"""));
         var client = new ImgBBClient(new HttpClient(handler));
-        var file = CreateTempImage();
+        var file = CreateTempPng();
 
         try
         {
@@ -37,7 +40,7 @@ public sealed class ImgBBClientTests
         var handler = new StubHandler(_ =>
             JsonResponse(HttpStatusCode.BadRequest, """{"success":false,"error":{"message":"Invalid API key"}}"""));
         var client = new ImgBBClient(new HttpClient(handler));
-        var file = CreateTempImage();
+        var file = CreateTempPng();
 
         try
         {
@@ -57,7 +60,7 @@ public sealed class ImgBBClientTests
         var handler = new StubHandler(_ =>
             JsonResponse(HttpStatusCode.OK, """{"success":true,"data":{"url":"http://insecure.example/a.png"}}"""));
         var client = new ImgBBClient(new HttpClient(handler));
-        var file = CreateTempImage();
+        var file = CreateTempPng();
 
         try
         {
@@ -80,10 +83,32 @@ public sealed class ImgBBClientTests
         Assert.Contains("API key", result.ErrorMessage, StringComparison.OrdinalIgnoreCase);
     }
 
-    private static string CreateTempImage()
+    [Fact]
+    public async Task UploadAsync_RejectsNonImageContent()
+    {
+        var handler = new StubHandler(_ =>
+            JsonResponse(HttpStatusCode.OK, """{"success":true,"data":{"url":"https://i.ibb.co/abc/test.png"}}"""));
+        var client = new ImgBBClient(new HttpClient(handler));
+        var file = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString("N") + ".png");
+        await File.WriteAllTextAsync(file, "not-an-image");
+
+        try
+        {
+            var result = await client.UploadAsync("key", file);
+            Assert.False(result.Success);
+            Assert.Contains("recognized image", result.ErrorMessage, StringComparison.OrdinalIgnoreCase);
+            Assert.Null(handler.LastRequestUri);
+        }
+        finally
+        {
+            File.Delete(file);
+        }
+    }
+
+    private static string CreateTempPng()
     {
         var path = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString("N") + ".png");
-        File.WriteAllBytes(path, [0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A]);
+        File.WriteAllBytes(path, PngHeader);
         return path;
     }
 
@@ -116,28 +141,69 @@ public sealed class ImgBBClientTests
 
 public sealed class ImgBBUploaderUtilityTests
 {
+    private static readonly byte[] PngHeader =
+        [0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A, 0x00, 0x00, 0x00, 0x0D];
+
     [Fact]
     public void CanAccept_RejectsNonImage()
     {
         var utility = CreateUtility(out _, out _, out _);
-        var context = new UtilityContext
+        var file = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString("N") + ".txt");
+        File.WriteAllText(file, "hello");
+        try
         {
-            FilePaths = ["C:\\temp\\notes.txt"],
-            Trigger = UtilityTrigger.Drop
-        };
-        Assert.False(utility.CanAccept(context));
+            var context = new UtilityContext
+            {
+                FilePaths = [file],
+                Trigger = UtilityTrigger.Drop
+            };
+            Assert.False(utility.CanAccept(context));
+        }
+        finally
+        {
+            File.Delete(file);
+        }
     }
 
     [Fact]
     public void CanAccept_AcceptsPng()
     {
         var utility = CreateUtility(out _, out _, out _);
-        var context = new UtilityContext
+        var file = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString("N") + ".png");
+        File.WriteAllBytes(file, PngHeader);
+        try
         {
-            FilePaths = ["C:\\temp\\photo.png"],
-            Trigger = UtilityTrigger.Drop
-        };
-        Assert.True(utility.CanAccept(context));
+            var context = new UtilityContext
+            {
+                FilePaths = [file],
+                Trigger = UtilityTrigger.Drop
+            };
+            Assert.True(utility.CanAccept(context));
+        }
+        finally
+        {
+            File.Delete(file);
+        }
+    }
+
+    [Fact]
+    public void CanAccept_RejectsPngExtensionWithFakeContent()
+    {
+        var utility = CreateUtility(out _, out _, out _);
+        var file = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString("N") + ".png");
+        File.WriteAllText(file, "fake");
+        try
+        {
+            Assert.False(utility.CanAccept(new UtilityContext
+            {
+                FilePaths = [file],
+                Trigger = UtilityTrigger.Drop
+            }));
+        }
+        finally
+        {
+            File.Delete(file);
+        }
     }
 
     [Fact]
@@ -147,7 +213,7 @@ public sealed class ImgBBUploaderUtilityTests
         store.Configs["imgbb-uploader"] = new Dictionary<string, string>();
 
         var file = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString("N") + ".png");
-        await File.WriteAllBytesAsync(file, [1, 2, 3]);
+        await File.WriteAllBytesAsync(file, PngHeader);
         try
         {
             var result = await utility.ExecuteAsync(new UtilityContext
