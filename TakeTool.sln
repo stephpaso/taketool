@@ -1,0 +1,57 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31903.59
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{55E7A05E-264F-4E0B-8A9B-BC03B294615E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TakeTool.Core", "src\TakeTool.Core\TakeTool.Core.csproj", "{D84708AE-71A2-4306-93A3-87292BE4F0B9}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TakeTool.Utilities", "src\TakeTool.Utilities\TakeTool.Utilities.csproj", "{678643E7-6604-44FA-BE52-EE42CBC9643C}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{6CEDABBA-19B7-4EE4-84B8-A5024BD4D294}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TakeTool.Core.Tests", "tests\TakeTool.Core.Tests\TakeTool.Core.Tests.csproj", "{3B2D5403-834F-4C47-ADA1-D446FAD3194D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TakeTool.Utilities.Tests", "tests\TakeTool.Utilities.Tests\TakeTool.Utilities.Tests.csproj", "{551EB264-6CAE-4BA6-9A69-7613A8710D21}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TakeTool.UI.Windows", "src\TakeTool.UI.Windows\TakeTool.UI.Windows.csproj", "{073ED80B-8793-4B7B-9169-EBF81841CAC0}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{D84708AE-71A2-4306-93A3-87292BE4F0B9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D84708AE-71A2-4306-93A3-87292BE4F0B9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D84708AE-71A2-4306-93A3-87292BE4F0B9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D84708AE-71A2-4306-93A3-87292BE4F0B9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{678643E7-6604-44FA-BE52-EE42CBC9643C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{678643E7-6604-44FA-BE52-EE42CBC9643C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{678643E7-6604-44FA-BE52-EE42CBC9643C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{678643E7-6604-44FA-BE52-EE42CBC9643C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3B2D5403-834F-4C47-ADA1-D446FAD3194D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3B2D5403-834F-4C47-ADA1-D446FAD3194D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3B2D5403-834F-4C47-ADA1-D446FAD3194D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3B2D5403-834F-4C47-ADA1-D446FAD3194D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{551EB264-6CAE-4BA6-9A69-7613A8710D21}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{551EB264-6CAE-4BA6-9A69-7613A8710D21}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{551EB264-6CAE-4BA6-9A69-7613A8710D21}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{551EB264-6CAE-4BA6-9A69-7613A8710D21}.Release|Any CPU.Build.0 = Release|Any CPU
+		{073ED80B-8793-4B7B-9169-EBF81841CAC0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{073ED80B-8793-4B7B-9169-EBF81841CAC0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{073ED80B-8793-4B7B-9169-EBF81841CAC0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{073ED80B-8793-4B7B-9169-EBF81841CAC0}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{D84708AE-71A2-4306-93A3-87292BE4F0B9} = {55E7A05E-264F-4E0B-8A9B-BC03B294615E}
+		{678643E7-6604-44FA-BE52-EE42CBC9643C} = {55E7A05E-264F-4E0B-8A9B-BC03B294615E}
+		{3B2D5403-834F-4C47-ADA1-D446FAD3194D} = {6CEDABBA-19B7-4EE4-84B8-A5024BD4D294}
+		{551EB264-6CAE-4BA6-9A69-7613A8710D21} = {6CEDABBA-19B7-4EE4-84B8-A5024BD4D294}
+		{073ED80B-8793-4B7B-9169-EBF81841CAC0} = {55E7A05E-264F-4E0B-8A9B-BC03B294615E}
+	EndGlobalSection
+EndGlobal

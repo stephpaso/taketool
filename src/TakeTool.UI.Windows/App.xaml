@@ -1,0 +1,16 @@
+<Application x:Class="TakeTool.UI.Windows.App"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             ShutdownMode="OnExplicitShutdown">
+    <Application.Resources>
+        <ResourceDictionary>
+            <SolidColorBrush x:Key="HubBrush" Color="#1B3A4B" />
+            <SolidColorBrush x:Key="HubAccentBrush" Color="#3D8B7A" />
+            <SolidColorBrush x:Key="SlotBrush" Color="#F2F5F3" />
+            <SolidColorBrush x:Key="SlotBorderBrush" Color="#1B3A4B" />
+            <SolidColorBrush x:Key="FeedbackOkBrush" Color="#2E7D4F" />
+            <SolidColorBrush x:Key="FeedbackErrorBrush" Color="#B33A3A" />
+            <BooleanToVisibilityConverter x:Key="BoolToVis" />
+        </ResourceDictionary>
+    </Application.Resources>
+</Application>
