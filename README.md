@@ -2,6 +2,10 @@
 
 Desktop overlay of quick utilities for Windows (macOS host planned later). Modular plugin-style architecture: the core never hardcodes a specific utility.
 
+<p align="center">
+  <img src="docs/overlay-demo.png" alt="TakeTool floating overlay hub above the Windows taskbar" width="186" />
+</p>
+
 ## Requirements
 
 - Windows 10/11
